@@ -13,8 +13,8 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
 
-  const navigateToDocuments = () => {
-    router.navigate('/documents');
+  const navigateToAnalyze = () => {
+    router.navigate('/analyze');
   };
 
   return (
@@ -33,49 +33,49 @@ export default function HomeScreen() {
 
       <ThemedView style={styles.introContainer}>
         <ThemedText>
-          Your personal medical document analyzer. Upload your lab results or physician notes to get simple explanations and helpful recommendations.
+          Your personal medical document analyzer. Upload your lab results or physician notes to get simple explanations and actionable health insights.
         </ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.featureContainer}>
         <ThemedView style={styles.featureHeaderContainer}>
-          <IconSymbol size={24} name="doc.text.fill" color={theme.primary} />
-          <ThemedText type="subtitle">Document Analysis</ThemedText>
+          <IconSymbol size={24} name="flask.fill" color={theme.primary} />
+          <ThemedText type="subtitle">Smart Medical Analysis</ThemedText>
         </ThemedView>
         <ThemedText>
-          Upload your medical test results or physician notes and get a clear explanation in simple language. No more confusion about medical terms.
+          Upload your medical documents and receive easy-to-understand explanations, with medical terms simplified and clear recommendations.
         </ThemedText>
         <TouchableOpacity 
           style={[styles.actionButton, { backgroundColor: theme.primary }]}
-          onPress={navigateToDocuments}
+          onPress={navigateToAnalyze}
         >
-          <ThemedText style={{ color: theme.buttonText }}>Upload Document</ThemedText>
+          <ThemedText style={{ color: theme.buttonText }}>Start Analyzing</ThemedText>
         </TouchableOpacity>
       </ThemedView>
 
       <ThemedView style={styles.featureContainer}>
         <ThemedView style={styles.featureHeaderContainer}>
-          <IconSymbol size={24} name="list.bullet.clipboard" color={theme.primary} />
-          <ThemedText type="subtitle">Personalized Recommendations</ThemedText>
+          <IconSymbol size={24} name="heart.text.square.fill" color={theme.primary} />
+          <ThemedText type="subtitle">Health Insights</ThemedText>
         </ThemedView>
         <ThemedText>
-          Receive practical advice and suggestions based on your medical documents. MediCura provides supportive, non-alarming guidance for your health journey.
+          Get personalized health predictions with risk assessments and actionable prevention measures. Our analysis helps you understand potential health concerns in plain language.
         </ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.featureContainer}>
         <ThemedView style={styles.featureHeaderContainer}>
-          <IconSymbol size={24} name="lock.shield" color={theme.primary} />
-          <ThemedText type="subtitle">Privacy and Security</ThemedText>
+          <IconSymbol size={24} name="book.fill" color={theme.primary} />
+          <ThemedText type="subtitle">Medical Dictionary</ThemedText>
         </ThemedView>
         <ThemedText>
-          Your medical data is important. MediCura processes your documents securely and doesn't store sensitive information. Your privacy is our priority.
+          Never struggle with understanding medical terminology again. MediCura explains complex medical terms in simple language anyone can understand.
         </ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.disclaimerContainer}>
         <ThemedText style={styles.disclaimer}>
-          Note: MediCura provides informational content only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+          Note: MediCura provides informational content only and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for medical advice.
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
