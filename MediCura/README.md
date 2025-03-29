@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# MediCura - Medical Document Analysis App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+MediCura is a mobile application designed to help patients better understand their medical test results and physician notes by providing clear, easy-to-understand analysis and actionable recommendations.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Document Upload**: Upload medical test results or physician notes in PDF or image format.
+- **Simplified Analysis**: Get plain language explanations of your medical documents, with medical terms clarified for easy understanding.
+- **Actionable Recommendations**: Receive practical advice and lifestyle suggestions based on your medical documents.
+- **User-Friendly Interface**: Intuitive design makes it easy to navigate and understand your health information.
+- **Privacy-Focused**: Your medical data is processed securely and is not stored.
+
+## Getting Started
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Start the development server:
 
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Run the app on your preferred platform:
+   - iOS simulator
+   - Android emulator
+   - Expo Go app on a physical device
+   - Web browser
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Technology Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- React Native
+- Expo
+- OpenAI API for medical document analysis
 
-## Get a fresh project
+## How It Works
 
-When you're ready, run:
+1. **Upload**: Users upload their medical documents (lab results, physician notes, etc.).
+2. **Processing**: The app analyzes the document using OpenAI's API.
+3. **Analysis**: The app provides a simplified explanation of the medical information.
+4. **Recommendations**: Users receive practical health advice and next steps.
 
-```bash
-npm run reset-project
-```
+## Important Note
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+MediCura provides information for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
 
-## Learn more
+## Development
 
-To learn more about developing your project with Expo, look at the following resources:
+This project uses Expo and React Native. The file structure follows a standard Expo Router setup with tab-based navigation:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- `/app/(tabs)`: Contains the main tab screens of the application
+- `/components`: Reusable UI components
+- `/constants`: Application constants like colors and theme settings
+- `/assets`: Images and other static assets
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is licensed under the MIT License - see the LICENSE file for details.
