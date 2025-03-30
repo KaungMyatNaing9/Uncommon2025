@@ -43,24 +43,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="appointments"
+        name="chat"
         options={{
-          title: 'Appointments',
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="calendar" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
+          title: 'Chat',
           tabBarIcon: ({ color }) => <IconSymbol size={24} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="emergency"
-        options={{
-          title: 'Emergency',
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="exclamationmark.shield.fill" color={color} />,
         }}
       />
     </Tabs>
