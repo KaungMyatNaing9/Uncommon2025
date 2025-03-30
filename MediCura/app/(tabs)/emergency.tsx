@@ -12,6 +12,12 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 type RecordingType = Audio.Recording | null;
 type SoundType = Audio.Sound | null;
 
+// Define a conversation message type
+type ConversationMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
 // OpenAI API key is stored in .env file
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -29,6 +35,8 @@ export default function EmergencyScreen() {
   const [callDuration, setCallDuration] = useState(0);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [sound, setSound] = useState<SoundType>(null);
+  // Add conversation history to maintain context
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
 
   // Call animation effect
   useEffect(() => {
@@ -96,34 +104,96 @@ export default function EmergencyScreen() {
     };
   }, [recording, isSpeaking, sound]);
 
-  // Play connection sound effect
-  const playConnectionSound = () => {
-    // Platform-specific voice settings
-    const voiceOptions = Platform.select({
-      ios: {
-        language: 'en-US',
-        pitch: 0.8,
-        rate: 1.0,
-        voice: 'com.apple.voice.enhanced.en-US.Oliver', // iOS male voice
-      },
-      android: {
-        language: 'en-US',
-        pitch: 0.8,
-        rate: 1.0, 
-        // Android doesn't use the same voice identifiers as iOS
-      },
-      default: {
-        language: 'en-US',
-        pitch: 0.8,
-        rate: 1.0,
+  // Initialize audio output to maximum volume
+  useEffect(() => {
+    const setupAudio = async () => {
+      try {
+        // Set audio mode for maximum speaker volume and force through speaker
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          interruptionModeIOS: 1, // 1 = do not mix with other audio
+          interruptionModeAndroid: 1, // 1 = do not mix with other audio
+          shouldDuckAndroid: false, // Don't lower our volume for other apps
+          playThroughEarpieceAndroid: false, // Force audio through speaker
+        });
+      } catch (error) {
+        console.error('Error setting up audio:', error);
       }
-    });
-    
-    // Use Speech API to simulate a connection sound with male voice
-    Speech.speak("Connecting", { 
-      ...voiceOptions,
-      volume: 0.5,
-    });
+    };
+
+    setupAudio();
+  }, []);
+
+  // Call the doctor using the device's native speech engine
+  const speakWithMaleVoice = (text: string, onComplete?: () => void): void => {
+    try {
+      // Stop any ongoing speech
+      if (isSpeaking) {
+        Speech.stop();
+      }
+
+      // Reset audio mode to ensure speaker output before speaking
+      Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        interruptionModeIOS: 1,
+        interruptionModeAndroid: 1,
+        shouldDuckAndroid: false, // Don't lower our volume
+        playThroughEarpieceAndroid: false // Force through speaker
+      }).catch(error => console.error('Error setting audio mode:', error));
+
+      // Platform-specific voice settings optimized for male voice and maximum volume
+      const voiceOptions = Platform.select({
+        ios: {
+          language: 'en-US',
+          pitch: 0.85,      // Deep pitch for male voice
+          rate: 0.95,       // Slightly slower for clarity
+          voice: 'com.apple.voice.enhanced.en-US.Oliver', // Male voice on iOS
+          volume: 1.0,      // Maximum volume
+        },
+        android: {
+          language: 'en-US',
+          pitch: 0.8,       // Deep pitch for male voice
+          rate: 0.95,       // Slightly slower for clarity 
+          volume: 1.0,      // Maximum volume
+        },
+        default: {
+          language: 'en-US',
+          pitch: 0.85,
+          rate: 0.95,
+          volume: 1.0,      // Maximum volume
+        }
+      });
+      
+      // Speak with enhanced volume
+      Speech.speak(text, {
+        ...voiceOptions,
+        onStart: () => {
+          setIsSpeaking(true);
+          // Ensure device volume is maximized when speaking starts
+          Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            playThroughEarpieceAndroid: false,
+            staysActiveInBackground: true,
+            shouldDuckAndroid: false // Don't lower volume for other apps
+          }).catch(e => console.error('Error maximizing volume:', e));
+        },
+        onDone: () => {
+          setIsSpeaking(false);
+          if (onComplete) onComplete();
+        },
+        onError: (error) => {
+          console.error('Speech error:', error);
+          setIsSpeaking(false);
+          if (onComplete) onComplete();
+        }
+      });
+    } catch (error) {
+      console.error('Error with speech:', error);
+      setIsSpeaking(false);
+      if (onComplete) onComplete();
+    }
   };
 
   // Transcribe audio using OpenAI Whisper API
@@ -165,28 +235,35 @@ export default function EmergencyScreen() {
     }
   };
 
-  // Get AI response from OpenAI ChatGPT
+  // Get AI response from OpenAI ChatGPT with conversation history
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
+      // Create messages array with system prompt and conversation history
+      const messages = [
+        {
+          role: 'system',
+          content: `You are Dr. Careo, an emergency medical AI assistant who provides clear, actionable medical guidance. 
+                    Speak as a male doctor with a calm, reassuring voice. 
+                    Provide step-by-step instructions for medical emergencies. 
+                    Be precise and concise. Focus on immediate actions the user can take while waiting for professional help.
+                    Avoid disclaimers. Assume this is a real emergency situation.
+                    Remember previous parts of the conversation to provide consistent care.
+                    End your response with a follow-up question to gather more information.`
+        },
+        // Add all previous conversation history
+        ...conversationHistory,
+        // Add the new user message
+        {
+          role: 'user',
+          content: userMessage
+        }
+      ];
+      
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
           model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: `You are Dr. Careo, an emergency medical AI assistant who provides clear, actionable medical guidance. 
-                        Speak as a male doctor with a calm, reassuring voice. 
-                        Provide step-by-step instructions for medical emergencies. 
-                        Be precise and concise. Focus on immediate actions the user can take while waiting for professional help.
-                        Avoid disclaimers. Assume this is a real emergency situation.
-                        End your response with a follow-up question to gather more information.`
-            },
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ],
+          messages: messages,
           temperature: 0.7,
           max_tokens: 300
         },
@@ -205,98 +282,6 @@ export default function EmergencyScreen() {
     }
   };
 
-  // Convert text to speech with OpenAI TTS API
-  const textToSpeech = async (text: string): Promise<void> => {
-    try {
-      // First try using OpenAI's TTS API for better quality male voice
-      const response = await axios.post(
-        'https://api.openai.com/v1/audio/speech',
-        {
-          model: 'tts-1',
-          input: text,
-          voice: 'onyx', // Using onyx which is a male voice
-          response_format: 'mp3',
-          speed: 1.2 // Increase speed for a more natural pace
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENAI_API_KEY}`
-          },
-          responseType: 'arraybuffer'
-        }
-      );
-      
-      // Save the audio file directly using the array buffer
-      const fileUri = `${FileSystem.documentDirectory}response.mp3`;
-      
-      // Convert array buffer to base64 without using Buffer
-      // Using a workaround for React Native
-      const arrayBufferView = new Uint8Array(response.data);
-      let base64String = '';
-      for (let i = 0; i < arrayBufferView.length; i++) {
-        base64String += String.fromCharCode(arrayBufferView[i]);
-      }
-      const base64Data = btoa(base64String);
-      
-      await FileSystem.writeAsStringAsync(fileUri, base64Data, { encoding: FileSystem.EncodingType.Base64 });
-      
-      // Play the audio
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: fileUri },
-        { shouldPlay: true }
-      );
-      
-      setSound(newSound);
-      setIsSpeaking(true);
-      
-      // Set up sound completion handler
-      newSound.setOnPlaybackStatusUpdate(status => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsSpeaking(false);
-          startListeningAfterResponse();
-        }
-      });
-    } catch (error) {
-      console.error('Error with OpenAI TTS:', error);
-      
-      // Platform-specific voice settings
-      const voiceOptions = Platform.select({
-        ios: {
-          language: 'en-US',
-          pitch: 0.8,
-          rate: 1.1,
-          voice: 'com.apple.voice.enhanced.en-US.Oliver', // iOS male voice
-        },
-        android: {
-          language: 'en-US',
-          pitch: 0.8,
-          rate: 1.1, 
-          // Android doesn't use the same voice identifiers as iOS
-        },
-        default: {
-          language: 'en-US',
-          pitch: 0.8,
-          rate: 1.1,
-        }
-      });
-      
-      // Fallback to expo-speech with improved male voice settings
-      Speech.speak(text, {
-        ...voiceOptions,
-        onStart: () => setIsSpeaking(true),
-        onDone: () => {
-          setIsSpeaking(false);
-          startListeningAfterResponse();
-        },
-        onError: (error) => {
-          console.error('Speech error:', error);
-          setIsSpeaking(false);
-        }
-      });
-    }
-  };
-
   const startRecording = async () => {
     try {
       // Request permissions
@@ -311,6 +296,16 @@ export default function EmergencyScreen() {
         setInCall(true);
         setResponseText('Connecting to Dr. Careo...');
         
+        // Force audio through speaker for the call
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          interruptionModeIOS: 1,
+          interruptionModeAndroid: 1,
+          shouldDuckAndroid: false,
+          playThroughEarpieceAndroid: false,
+        });
+        
         // Simulate call connection
         setTimeout(async () => {
           try {
@@ -318,8 +313,13 @@ export default function EmergencyScreen() {
             const greeting = "Hello, this is Dr. Careo. I'm here to help you with your emergency. Please describe what's happening so I can guide you through it.";
             setResponseText(greeting);
             
-            // Speak the greeting using the male voice
-            await textToSpeech(greeting);
+            // Add the greeting to conversation history
+            setConversationHistory([
+              { role: 'assistant', content: greeting }
+            ]);
+            
+            // Speak the greeting using male voice
+            speakWithMaleVoice(greeting, startListeningAfterResponse);
           } catch (error) {
             console.error('Error during call connection:', error);
           }
@@ -332,6 +332,7 @@ export default function EmergencyScreen() {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
+        playThroughEarpieceAndroid: false, // Force through speaker
       });
 
       const { recording: newRecording } = await Audio.Recording.createAsync(
@@ -373,12 +374,24 @@ export default function EmergencyScreen() {
         const transcribedText = await transcribeAudio(uri);
         setTranscript(transcribedText);
         
-        // Get AI response from OpenAI
+        // Add user message to conversation history
+        setConversationHistory(prevHistory => [
+          ...prevHistory,
+          { role: 'user', content: transcribedText }
+        ]);
+        
+        // Get AI response from OpenAI with full conversation history
         const aiResponse = await getAIResponse(transcribedText);
         setResponseText(aiResponse);
         
-        // Convert response to speech with male voice
-        await textToSpeech(aiResponse);
+        // Add AI response to conversation history
+        setConversationHistory(prevHistory => [
+          ...prevHistory,
+          { role: 'assistant', content: aiResponse }
+        ]);
+        
+        // Speak response with male voice
+        speakWithMaleVoice(aiResponse, startListeningAfterResponse);
         
         setIsProcessing(false);
       } catch (error) {
@@ -389,10 +402,23 @@ export default function EmergencyScreen() {
         const mockTranscript = "My friend has fallen and hit their head. They're conscious but disoriented.";
         setTranscript(mockTranscript);
         
+        // Add mock user message to conversation history
+        setConversationHistory(prevHistory => [
+          ...prevHistory,
+          { role: 'user', content: mockTranscript }
+        ]);
+        
         const mockResponse = "I understand this is concerning. Stay calm and keep your friend still. First, check if their pupils are equal in size. Look for any severe headache or vomiting, which could indicate a concussion. Don't let them sleep for the next hour, and keep talking to them in a reassuring voice. If you notice any worsening symptoms or they lose consciousness, call emergency services immediately. Is there any bleeding from the head?";
         
         setResponseText(mockResponse);
-        await textToSpeech(mockResponse);
+        
+        // Add mock AI response to conversation history
+        setConversationHistory(prevHistory => [
+          ...prevHistory,
+          { role: 'assistant', content: mockResponse }
+        ]);
+        
+        speakWithMaleVoice(mockResponse, startListeningAfterResponse);
       }
     } catch (err) {
       console.error('Failed to stop recording:', err);
@@ -440,6 +466,7 @@ export default function EmergencyScreen() {
     setResponseText('');
     setCallDuration(0);
     setSound(null);
+    setConversationHistory([]); // Clear conversation history
   };
 
   return (
