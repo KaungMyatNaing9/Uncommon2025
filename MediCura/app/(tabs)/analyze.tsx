@@ -194,23 +194,23 @@ export default function AnalyzeScreen() {
     <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
       <SafeAreaView style={[styles.container]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Medical Analysis</Text>
-          <Text style={[styles.subtitle, { color: theme.text }]}>
+          <Text style={[styles.title, { color: theme.milk }]}>Medical Analysis</Text>
+          <Text style={[styles.subtitle, { color: theme.milk }]}>
             Upload your medical test results or physician notes for easy-to-understand analysis
           </Text>
         </View>
         
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <TouchableOpacity 
-            style={[styles.uploadBox, { borderColor: theme.border }]} 
+            style={[styles.uploadBox, { backgroundColor: theme.milk30, borderColor: theme.border }]} 
             onPress={pickDocument}
           >
             <IconSymbol size={40} name="flask.fill" color={theme.primary} />
-            <Text style={[styles.uploadText, { color: theme.text }]}>
+            <Text style={[styles.uploadText, { color: theme.milk }]}>
               {document ? 'Change Document' : 'Upload Document'}
             </Text>
             {document && (
-              <Text style={[styles.documentName, { color: theme.text }]} numberOfLines={1}>
+              <Text style={[styles.documentName, { color: theme.milk }]} numberOfLines={1}>
                 {document.name}
               </Text>
             )}
