@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image, ImageBackground } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
@@ -8,6 +8,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import * as Haptics from 'expo-haptics';
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
+import PixelBackground from '../../assets/images/project/pixelBackground.png';
 
 // Message types for the chat
 interface Message {
@@ -201,58 +202,62 @@ export default function ChatScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
-      <View style={styles.header}>
-        <ThemedText style={styles.title}>Health Assistant</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Chat with the AI about your health questions
-        </ThemedText>
-      </View>
-      
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messageList}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-        style={{ flex: 1 }} // Allow FlatList to take available space
-      />
-      
-      {isLoading && (
-        <View style={[styles.loadingContainer, { backgroundColor: theme.card }]}>
-          <ActivityIndicator size="small" color={theme.primary} />
-          <ThemedText style={styles.loadingText}>AI is typing...</ThemedText>
-        </View>
-      )}
-      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={100}
-        style={styles.inputContainer}
-      >
-        <View style={[styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <TextInput
-            style={[styles.input, { color: theme.text }]}
-            placeholder="Type your message here..."
-            placeholderTextColor={theme.text ? `${theme.text}80` : '#99999980'}
-            value={inputText}
-            onChangeText={setInputText}
-            multiline
-            maxLength={500}
-          />
-          <TouchableOpacity 
-            style={[styles.sendButton, { backgroundColor: theme.primary }]}
-            onPress={sendMessage}
-            disabled={inputText.trim() === '' || isLoading}
-          >
-            <IconSymbol name="arrow.up.circle.fill" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+    <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
+      <SafeAreaView style={[styles.container]} edges={['top']}>
+        <View style={styles.header}>
+          <ThemedText style={styles.title}>Health Assistant</ThemedText>
+          <ThemedText style={styles.subtitle}>
+            Chat with the AI about your health questions
+          </ThemedText>
         </View>
         
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messageList}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          style={{ flex: 1 }} // Allow FlatList to take available space
+        />
         
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        {isLoading && (
+          <View style={[styles.loadingContainer, { backgroundColor: theme.card }]}>
+            <ActivityIndicator size="small" color={theme.primary} />
+            <ThemedText style={styles.loadingText}>AI is typing...</ThemedText>
+          </View>
+        )}
+        
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={100}
+          style={styles.inputContainer}
+        >
+          <View style={[styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <TextInput
+              style={[styles.input, { color: theme.text }]}
+              placeholder="Type your message here..."
+              placeholderTextColor={theme.text ? `${theme.text}80` : '#99999980'}
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+              maxLength={500}
+            />
+            <TouchableOpacity 
+              style={[styles.sendButton, { backgroundColor: theme.primary }]}
+              onPress={sendMessage}
+              disabled={inputText.trim() === '' || isLoading}
+            >
+              <IconSymbol name="arrow.up.circle.fill" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+          
+          <ThemedText style={styles.disclaimer}>
+            This AI assistant provides general information only and is not a substitute for professional medical advice.
+          </ThemedText>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
@@ -366,5 +371,10 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     marginTop: 8,
     textAlign: 'center',
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover', 
+    justifyContent: 'center',
   },
 });
