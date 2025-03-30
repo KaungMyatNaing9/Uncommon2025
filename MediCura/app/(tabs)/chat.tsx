@@ -25,7 +25,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your AI health assistant. How can I help you today?",
+      text: "Hello, this is Dr. Careo and I am here to help you with your health concerns.",
       sender: 'ai',
       timestamp: new Date(),
     },
@@ -37,19 +37,49 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   // Function to call OpenAI API
-  const analyzeWithOpenAI = async (userInput: string): Promise<string> => {
+  const analyzeWithOpenAI = async (userInput: string, messageHistory: Message[]): Promise<string> => {
     try {
+      // Convert message history to OpenAI format
+      const formattedMessages = messageHistory.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+      
+      // Add system message to guide the AI behavior
+      const apiMessages = [
+        {
+          role: 'system',
+          content: `You are a compassionate AI health assistant named Dr. Careo. Your user may be distressed or unwell.
+
+          Key principles:
+          1. Keep your responses brief and easy to understand
+          2. Ask no more than ONE short, simple follow-up question at a time
+          3. Prioritize the user's comfort - they may be feeling unwell
+          4. Use simple, non-technical language
+          5. Be reassuring and calm in your tone
+          
+          Information sharing:
+          - Provide concise, helpful information
+          - Don't overwhelm with details
+          - Highlight what's most important first
+          - Suggest professional medical help when appropriate, but don't alarm unnecessarily
+          - Make the conclusion after 2 at best just 3 questions
+          
+          Remember: Someone who is unwell needs clear, simple communication and compassionate support.`
+        },
+        ...formattedMessages,
+        {
+          role: 'user',
+          content: userInput
+        }
+      ];
+      
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
           model: 'gpt-4-turbo',
-          messages: [
-            {
-              role: 'user',
-              content: userInput
-            }
-          ],
-          temperature: 0.5
+          messages: apiMessages,
+          temperature: 0.6  // Slightly lower temperature for more focused responses
         },
         {
           headers: {
@@ -95,8 +125,11 @@ export default function ChatScreen() {
     setIsLoading(true);
     
     try {
-      // Call OpenAI API to get the response
-      const aiResponse = await analyzeWithOpenAI(userMessage.text);
+      // Get all previous messages for context
+      const messageHistory = [...messages];
+      
+      // Call OpenAI API to get the response with message history
+      const aiResponse = await analyzeWithOpenAI(userMessage.text, messageHistory);
       
       // Create new AI message
       const aiMessage: Message = {
@@ -298,7 +331,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     padding: 16,
-    paddingTop: 8,
+    paddingBottom: 120,
+    paddingTop: 12,
   },
   inputWrapper: {
     flexDirection: 'row',
