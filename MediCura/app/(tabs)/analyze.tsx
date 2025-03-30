@@ -83,7 +83,7 @@ export default function AnalyzeScreen() {
       setResult(null);
       setError(null);
     } catch (err) {
-      console.error('Error picking document:', err);
+      console.log('Error picking document:', err);
       setError('Failed to pick document. Please try again.');
     }
   };
@@ -119,7 +119,7 @@ export default function AnalyzeScreen() {
       return text;
   
     } catch (error) {
-      console.error('Error extracting text from document:', error);
+      console.log('Error extracting text from document:', error);
   
       // Optional fallback mock content
       // Return a structured error message
@@ -217,7 +217,7 @@ export default function AnalyzeScreen() {
       
       setResult(analysisResult);
     } catch (error) {
-      console.error('Error analyzing document:', error);
+      console.log('Error analyzing document:', error);
       setError('Failed to analyze the document. Please try again.');
     } finally {
       setLoading(false);
