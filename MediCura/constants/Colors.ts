@@ -13,6 +13,7 @@ export const Colors = {
   light: '#F8F9FC',
   dark: '#5A5C69',
   white: '#FFFFFF',
+  milk30: '#ffffff2b',
   background: '#F8F9FC',
   text: '#5A5C69',
   border: '#E3E6F0',
@@ -30,6 +31,8 @@ export default {
     buttonText: Colors.white,
     card: Colors.white,
     notification: Colors.danger,
+    milk: Colors.white,
+    milk30: Colors.milk30,
   },
   dark: {
     text: Colors.light,
@@ -40,5 +43,7 @@ export default {
     buttonText: Colors.white,
     card: '#2D3748',
     notification: Colors.danger,
+    milk: Colors.white,
+    milk30: Colors.milk30, 
   },
 };
