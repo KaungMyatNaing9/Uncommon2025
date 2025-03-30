@@ -205,8 +205,8 @@ export default function ChatScreen() {
     <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
       <SafeAreaView style={[styles.container]} edges={['top']}>
         <View style={styles.header}>
-          <ThemedText style={styles.title}>Health Assistant</ThemedText>
-          <ThemedText style={styles.subtitle}>
+          <ThemedText style={[styles.title, { color: theme.milk}]}>Health Assistant</ThemedText>
+          <ThemedText style={[styles.subtitle, { color: theme.milk}]}>
             Chat with the AI about your health questions
           </ThemedText>
         </View>
