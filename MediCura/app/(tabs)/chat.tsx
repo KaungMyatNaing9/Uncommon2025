@@ -129,10 +129,8 @@ export default function ChatScreen() {
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     
-    // Scroll to bottom of chat
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    // More aggressive scroll to bottom after sending
+    flatListRef.current?.scrollToEnd({ animated: true });
     
     // Light haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -158,7 +156,9 @@ export default function ChatScreen() {
       // Add AI message to chat
       setMessages(prev => [...prev, aiMessage]);
       
-      // Scroll to bottom of chat
+      // Ensure we scroll to the bottom after receiving AI response
+      flatListRef.current?.scrollToEnd({ animated: true });
+      // Second scroll after a small delay to ensure it works
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
@@ -175,6 +175,9 @@ export default function ChatScreen() {
       };
       
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Scroll to bottom with error message
+      flatListRef.current?.scrollToEnd({ animated: true });
     } finally {
       setIsLoading(false);
     }
@@ -233,7 +236,12 @@ export default function ChatScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messageList}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           style={{ flex: 1 }} // Allow FlatList to take available space
+          showsVerticalScrollIndicator={true}
+          maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+          automaticallyAdjustKeyboardInsets={true}
+          ListFooterComponent={<View style={{ height: 120 }} />} // Add space at bottom for visibility
         />
         
         {isLoading && (
@@ -245,7 +253,7 @@ export default function ChatScreen() {
         
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={100}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 85}
           style={styles.inputContainer}
         >
           <View style={[styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -266,10 +274,6 @@ export default function ChatScreen() {
               <IconSymbol name="arrow.up.circle.fill" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
-          
-          <Text style={styles.pixelDisclaimer}>
-            This AI assistant provides general information only.
-          </Text>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>
@@ -326,6 +330,7 @@ const styles = StyleSheet.create({
   messageList: {
     padding: 16,
     paddingBottom: 20,
+    paddingTop: 8,
   },
   messageRow: {
     flexDirection: 'row',
@@ -385,7 +390,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     paddingBottom: 8,
-    backgroundColor: Platform.OS === 'ios' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.9)',
+    backgroundColor: 'transparent',
     zIndex: 1000,
   },
   inputWrapper: {
