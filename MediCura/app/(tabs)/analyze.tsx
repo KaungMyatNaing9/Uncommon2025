@@ -10,6 +10,7 @@ import axios from 'axios';
 import { OPENAI_API_KEY, OCR_API_KEY } from '@env';
 import PixelBackground from '../../assets/images/project/pixelBackground.png';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
+import { PacmanLoader } from '@/components/PacmanLoader';
 
 type DocumentAsset = {
   name: string;
@@ -242,7 +243,7 @@ export default function AnalyzeScreen() {
           
           {loading && (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={theme.primary} />
+              <PacmanLoader />
               <Text style={[styles.loadingText, { color: theme.text }]}>
                 Analyzing your document...
               </Text>
