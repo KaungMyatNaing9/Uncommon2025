@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, ImageBackground } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, ImageBackground, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { HelloWave } from '@/components/HelloWave';
@@ -21,12 +21,15 @@ export default function HomeScreen() {
   return (
     <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
     <ParallaxScrollView
-      headerBackgroundColor={{ light: ColorsPalette.primary, dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#5E8FB9', dark: '#324B61' }}
       headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
+        <View style={styles.headerImageContainer}>
+          <Image
+            source={require('@/assets/images/project/doctor3.png')}
+            style={styles.reactLogo}
+            resizeMode="contain"
+          />
+        </View>
       }>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome to MediCura</ThemedText>
@@ -123,11 +126,15 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    height: 200,
+    width: '100%',
+  },
+  headerImageContainer: {
+    width: '100%',
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 20,
   },
   backgroundImage: {
     flex: 1,
