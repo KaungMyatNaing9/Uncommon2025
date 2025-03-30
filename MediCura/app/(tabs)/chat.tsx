@@ -253,7 +253,6 @@ export default function ChatScreen() {
           </View>
           
           <ThemedText style={styles.disclaimer}>
-            This AI assistant provides general information only and is not a substitute for professional medical advice.
           </ThemedText>
         </KeyboardAvoidingView>
       </SafeAreaView>
