@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <rect x="50" y="30" width="50" height="50" fill="#FFE4C4"/>
+  
+  <!-- Face -->
+  <circle cx="65" cy="45" r="3" fill="#000"/>
+  <circle cx="85" cy="45" r="3" fill="#000"/>
+  <rect x="65" y="60" width="20" height="5" fill="#000"/>
+  
+  <!-- Hair -->
+  <rect x="45" y="30" width="60" height="10" fill="#4A4A4A"/>
+  
+  <!-- Body -->
+  <rect x="40" y="80" width="70" height="60" fill="#FFFFFF"/>
+  
+  <!-- Coat -->
+  <rect x="35" y="80" width="80" height="20" fill="#4A4A4A"/>
+  
+  <!-- Arms -->
+  <rect x="35" y="90" width="15" height="40" fill="#4A4A4A"/>
+  <rect x="100" y="90" width="15" height="40" fill="#4A4A4A"/>
+  
+  <!-- Legs -->
+  <rect x="50" y="140" width="15" height="10" fill="#4A4A4A"/>
+  <rect x="85" y="140" width="15" height="10" fill="#4A4A4A"/>
+  
+  <!-- Stethoscope -->
+  <circle cx="120" cy="45" r="10" fill="#4A4A4A" opacity="0.5"/>
+  <line x1="120" y1="45" x2="100" y2="45" stroke="#4A4A4A" stroke-width="2"/>
+</svg> 

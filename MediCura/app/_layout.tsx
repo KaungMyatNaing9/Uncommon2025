@@ -15,6 +15,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'PressStart2P-Regular': require('../assets/fonts/PressStart2P-Regular.ttf'),
   });
 
   useEffect(() => {
