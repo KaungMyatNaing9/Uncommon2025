@@ -253,7 +253,6 @@ export default function ChatScreen() {
           </View>
           
           <ThemedText style={styles.disclaimer}>
-           
           </ThemedText>
         </KeyboardAvoidingView>
       </SafeAreaView>
