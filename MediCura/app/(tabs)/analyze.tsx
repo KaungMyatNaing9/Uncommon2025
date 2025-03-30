@@ -11,6 +11,8 @@ import { OPENAI_API_KEY, OCR_API_KEY } from '@env';
 import PixelBackground from '../../assets/images/project/pixelBackground.png';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
 import { PacmanLoader } from '@/components/PacmanLoader';
+import BarChartWithError from '@/components/GraphComponent'; 
+import string from '@/constants/strings';
 
 type DocumentAsset = {
   name: string;
@@ -27,6 +29,17 @@ type AnalysisResult = {
     probability: number;
     prevention: string;
     specialistType?: string;
+  }>;
+  keyFeatures: Array<{
+    name: string;
+    resultValue: number;
+    minPossibleValue: number;
+    maxPossibleValue: number;
+    minOptimalValue: number;
+    maxOptimalValue: number;
+    normalizedResultValue: number;
+    normalizedMinOptimalValue: number;
+    normalizedMaxOptimalValue: number;
   }>;
 };
 
@@ -131,30 +144,7 @@ export default function AnalyzeScreen() {
           messages: [
             {
               role: 'system',
-              content: `You are a helpful medical assistant that analyzes medical documents and provides simple explanations for patients. 
-              Your task is to analyze medical test results or physician notes and provide information in a way that someone with no medical background can understand.
-              Focus on accuracy and clarity. Be supportive and informative, but not alarmist.
-              
-              Format your response as JSON with the following structure:
-              {
-                "analysis": "A plain language explanation of the document that any patient would understand. Explain abnormal results and what they might mean.",
-                "terminology": {
-                  "term1": "simple explanation",
-                  "term2": "simple explanation"
-                },
-                "predictions": [
-                  {
-                    "disease": "Name of potential condition",
-                    "probability": 0.75, // a number between 0 and 1 representing likelihood
-                    "prevention": "Steps to prevent or manage this condition",
-                    "specialistType": "Type of doctor to see if condition is suspected"
-                  }
-                ]
-              }
-              
-              Include the most important medical terms in the terminology section.
-              For predictions, include 2-4 potential conditions suggested by the results, ordered by likelihood.
-              Ensure your analysis is accurate, helpful, and easy to understand for someone with no medical training.`
+              content: string.prompt
             },
             {
               role: 'user',
@@ -322,6 +312,16 @@ export default function AnalyzeScreen() {
                       )}
                     </View>
                   ))}
+                  {result.keyFeatures && result.keyFeatures.length > 0 && (
+                    <BarChartWithError
+                      data={result.keyFeatures.map(feature => ({
+                        label: feature.name,
+                        value: feature.normalizedResultValue,
+                        min: feature.normalizedMinOptimalValue,
+                        max: feature.normalizedMaxOptimalValue,
+                      }))}
+                    />
+                  )}
                 </View>
               )}
               
@@ -335,6 +335,7 @@ export default function AnalyzeScreen() {
               >
                 <Text style={styles.pixelButtonText}>Upload New Document</Text>
               </TouchableOpacity>
+              
             </View>
           )}
         </ScrollView>
