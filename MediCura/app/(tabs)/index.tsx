@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     height: 220,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 64,
   },
   backgroundImage: {
     flex: 1,

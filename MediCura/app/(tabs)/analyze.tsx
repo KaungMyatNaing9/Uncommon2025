@@ -13,6 +13,8 @@ import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-star
 import { PacmanLoader } from '@/components/PacmanLoader';
 import BarChartWithError from '@/components/GraphComponent'; 
 import string from '@/constants/strings';
+import RangeIndicator from '@/components/RangeIndicator';
+
 
 type DocumentAsset = {
   name: string;
@@ -120,17 +122,10 @@ export default function AnalyzeScreen() {
       console.error('Error extracting text from document:', error);
   
       // Optional fallback mock content
-      return `
-        Patient Name: Jane Smith
-        Date: June 2, 2023
-  
-        Lab Results:
-        - Hemoglobin: 11.8 g/dL (Low)
-        - Ferritin: 15 ng/mL (Low)
-  
-        Assessment: Iron deficiency anemia
-        Recommendation: Iron supplements and follow-up
-      `;
+      // Return a structured error message
+      throw new Error(
+        'Failed to extract text from the document. Please ensure the file is clear and supported.'
+      );
     }
   };
   
@@ -312,7 +307,12 @@ export default function AnalyzeScreen() {
                       )}
                     </View>
                   ))}
-                  {result.keyFeatures && result.keyFeatures.length > 0 && (
+                </View>
+              )}
+
+              {/* Key Features Section */}
+              {result.keyFeatures && result.keyFeatures.length > 0 && (
+                <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
                     <BarChartWithError
                       data={result.keyFeatures.map(feature => ({
                         label: feature.name,
@@ -321,9 +321,24 @@ export default function AnalyzeScreen() {
                         max: feature.normalizedMaxOptimalValue,
                       }))}
                     />
-                  )}
                 </View>
               )}
+
+              {result.keyFeatures.map((feature, index) => (
+                <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                  <RangeIndicator
+                    key={index}
+                    label={feature.name}
+                    value={feature.resultValue}
+                    segments={[
+                      { from: feature.minPossibleValue, to: feature.minOptimalValue, color: 'red' },
+                      { from: feature.minOptimalValue, to: feature.maxOptimalValue, color: 'lightgreen' },
+                      { from: feature.maxOptimalValue, to: feature.maxPossibleValue, color: 'red' },
+                    ]}
+                  />
+                  </View>
+              ))}
+
               
               <Text style={styles.pixelDisclaimer}>
                 Important: This analysis is for informational purposes only.
