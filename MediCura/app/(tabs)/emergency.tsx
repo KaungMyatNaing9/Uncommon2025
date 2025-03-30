@@ -526,7 +526,7 @@ export default function EmergencyScreen() {
             ]}
           >
             <Image 
-              source={require('@/assets/images/project/doctor.png')} 
+              source={require('@/assets/images/project/doctor2.png')} 
               style={styles.doctorImage} 
               resizeMode="contain"
             />
