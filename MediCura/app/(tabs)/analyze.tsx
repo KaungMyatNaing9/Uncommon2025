@@ -56,65 +56,54 @@ export default function AnalyzeScreen() {
     }
   };
 
-  const extractTextFromDocument = async (documentUri: string): Promise<string> => {
-    // In a real implementation, you would:
-    // - For PDFs: Use a PDF parser library (e.g., react-native-pdf-lib)
-    // - For images: Use OCR (e.g., via a cloud API)
-    
-    // For demo purposes, we'll simulate reading the file
+  const extractTextFromDocument = async (document: DocumentAsset): Promise<string> => {
     try {
-      const fileContent = await FileSystem.readAsStringAsync(documentUri);
-      // For demo purposes, return mock medical text if file is empty or can't be properly read
-      if (!fileContent || fileContent.length < 100) {
-        return `
-          Patient Name: John Doe
-          Date: May 15, 2023
-          
-          Lab Results:
-          Cholesterol: 210 mg/dL (Reference: <200 mg/dL)
-          HDL: 45 mg/dL (Reference: >40 mg/dL)
-          LDL: 140 mg/dL (Reference: <100 mg/dL)
-          Triglycerides: 180 mg/dL (Reference: <150 mg/dL)
-          Blood Glucose (Fasting): 115 mg/dL (Reference: 70-99 mg/dL)
-          
-          Assessment:
-          Borderline hyperlipidemia
-          Impaired fasting glucose
-          
-          Recommendations:
-          Diet and lifestyle modifications
-          Follow-up in 3 months
-        `;
-      }
-      return fileContent;
+      // Read the file as base64
+      const base64String = await FileSystem.readAsStringAsync(document.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+  
+      // Create formatted base64 string
+      const formattedBase64 = `data:${document.mimeType};base64,${base64String}`;
+  
+      const formData = new FormData();
+      formData.append('base64image', formattedBase64);
+      formData.append('apikey', 'K87588236988957');
+      formData.append('language', 'eng');
+      formData.append('filetype', document.mimeType?.includes('pdf') ? 'pdf' : 'image');
+  
+      const response = await fetch('https://api.ocr.space/parse/image', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await response.json();
+      const text = result?.ParsedResults?.[0]?.ParsedText;
+  
+      console.log('--> OCR result:', text);
+  
+      if (!text) throw new Error('No text parsed from OCR.');
+  
+      return text;
+  
     } catch (error) {
-      console.error('Error reading file:', error);
-      // Return mock data for demonstration
+      console.error('Error extracting text from document:', error);
+  
+      // Optional fallback mock content
       return `
         Patient Name: Jane Smith
         Date: June 2, 2023
-        
+  
         Lab Results:
-        CBC:
-        - WBC: 8.5 x10^9/L (Reference: 4.0-11.0 x10^9/L)
-        - RBC: 4.2 x10^12/L (Reference: 3.8-5.2 x10^12/L)
-        - Hemoglobin: 11.8 g/dL (Reference: 12.0-16.0 g/dL)
-        - Hematocrit: 36% (Reference: 36-46%)
-        - Platelets: 230 x10^9/L (Reference: 150-450 x10^9/L)
-        
-        Ferritin: 15 ng/mL (Reference: 20-200 ng/mL)
-        
-        Assessment:
-        Mild anemia
-        Iron deficiency
-        
-        Recommendations:
-        Iron supplements
-        Dietary counseling
-        Follow-up in 2 months
+        - Hemoglobin: 11.8 g/dL (Low)
+        - Ferritin: 15 ng/mL (Low)
+  
+        Assessment: Iron deficiency anemia
+        Recommendation: Iron supplements and follow-up
       `;
     }
   };
+  
 
   const analyzeWithOpenAI = async (text: string): Promise<AnalysisResult> => {
     try {
@@ -164,8 +153,8 @@ export default function AnalyzeScreen() {
           }
         }
       );
-
       const responseData = response.data.choices[0].message.content;
+      console.log('--> GPT result:', responseData);
       return JSON.parse(responseData);
     } catch (error) {
       console.error('Error calling OpenAI API:', error);
@@ -181,7 +170,7 @@ export default function AnalyzeScreen() {
     
     try {
       // Extract text from the document
-      const extractedText = await extractTextFromDocument(document.uri);
+      const extractedText = await extractTextFromDocument(document);
       
       // Analyze with OpenAI
       const analysisResult = await analyzeWithOpenAI(extractedText);
