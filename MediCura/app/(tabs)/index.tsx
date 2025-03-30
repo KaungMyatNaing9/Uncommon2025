@@ -14,7 +14,7 @@ export default function HomeScreen() {
   const theme = Colors[colorScheme ?? 'light'];
 
   const navigateToAnalyze = () => {
-    router.navigate('/analyze');
+    router.navigate('/(tabs)/analyze');
   };
 
   return (
