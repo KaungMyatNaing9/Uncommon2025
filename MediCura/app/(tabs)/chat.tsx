@@ -330,9 +330,14 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   inputContainer: {
+    position: 'absolute',
+    bottom: 70,
+    left: 0,
+    right: 0,
     padding: 16,
-    paddingBottom: 120,
-    paddingTop: 12,
+    paddingBottom: 8,
+    backgroundColor: Platform.OS === 'ios' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.9)',
+    zIndex: 1000,
   },
   inputWrapper: {
     flexDirection: 'row',
