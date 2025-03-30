@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
@@ -133,21 +133,37 @@ export default function ChatScreen() {
 
   // Render a chat message
   const renderMessage = ({ item }: { item: Message }) => (
-    <View style={[
-      styles.messageBubble, 
-      item.sender === 'user' 
-        ? [styles.userBubble, { backgroundColor: theme.primary }] 
-        : [styles.aiBubble, { backgroundColor: theme.card, borderColor: theme.border }]
-    ]}>
-      <ThemedText style={[
-        styles.messageText, 
-        item.sender === 'user' ? { color: '#FFFFFF' } : { color: theme.text }
+    <View style={styles.messageRow}>
+      {item.sender === 'ai' && (
+        <Image 
+          source={require('@/assets/images/project/doctor.png')} 
+          style={styles.avatar} 
+        />
+      )}
+      
+      <View style={[
+        styles.messageBubble, 
+        item.sender === 'user' 
+          ? [styles.userBubble, { backgroundColor: theme.primary }] 
+          : [styles.aiBubble, { backgroundColor: theme.card, borderColor: theme.border }]
       ]}>
-        {item.text}
-      </ThemedText>
-      <ThemedText style={[styles.timestamp, item.sender === 'user' ? { color: '#FFFFFF', opacity: 0.7 } : { color: theme.text, opacity: 0.5 }]}>
-        {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </ThemedText>
+        <ThemedText style={[
+          styles.messageText, 
+          item.sender === 'user' ? { color: '#FFFFFF' } : { color: theme.text }
+        ]}>
+          {item.text}
+        </ThemedText>
+        <ThemedText style={[styles.timestamp, item.sender === 'user' ? { color: '#FFFFFF', opacity: 0.7 } : { color: theme.text, opacity: 0.5 }]}>
+          {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </ThemedText>
+      </View>
+      
+      {item.sender === 'user' && (
+        <Image 
+          source={require('@/assets/images/project/patient.png')} 
+          style={styles.avatar} 
+        />
+      )}
     </View>
   );
 
@@ -167,7 +183,7 @@ export default function ChatScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.messageList}
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-        style={{ paddingBottom: 80 }} // Add padding to avoid overlap with input
+        style={{ flex: 1 }} // Allow FlatList to take available space
       />
       
       {isLoading && (
@@ -229,20 +245,32 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 20,
   },
+  messageRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'flex-end',
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginHorizontal: 8,
+  },
   messageBubble: {
     borderRadius: 18,
     padding: 12,
-    marginBottom: 8,
-    maxWidth: '80%',
+    maxWidth: '70%', // Reduced to make space for avatars
   },
   userBubble: {
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
+    marginLeft: 'auto',
   },
   aiBubble: {
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
     borderWidth: 1,
+    marginRight: 'auto',
   },
   messageText: {
     fontSize: 16,
