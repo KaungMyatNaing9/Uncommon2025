@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
@@ -152,62 +152,60 @@ export default function ChatScreen() {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
-        <View style={styles.header}>
-          <ThemedText style={styles.title}>Health Assistant</ThemedText>
-          <ThemedText style={styles.subtitle}>
-            Chat with the AI about your health questions
-          </ThemedText>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
+      <View style={styles.header}>
+        <ThemedText style={styles.title}>Health Assistant</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Chat with the AI about your health questions
+        </ThemedText>
+      </View>
+      
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.messageList}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        style={{ paddingBottom: 80 }} // Add padding to avoid overlap with input
+      />
+      
+      {isLoading && (
+        <View style={[styles.loadingContainer, { backgroundColor: theme.card }]}>
+          <ActivityIndicator size="small" color={theme.primary} />
+          <ThemedText style={styles.loadingText}>AI is typing...</ThemedText>
+        </View>
+      )}
+      
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={100}
+        style={styles.inputContainer}
+      >
+        <View style={[styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <TextInput
+            style={[styles.input, { color: theme.text }]}
+            placeholder="Type your message here..."
+            placeholderTextColor={theme.text ? `${theme.text}80` : '#99999980'}
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxLength={500}
+          />
+          <TouchableOpacity 
+            style={[styles.sendButton, { backgroundColor: theme.primary }]}
+            onPress={sendMessage}
+            disabled={inputText.trim() === '' || isLoading}
+          >
+            <IconSymbol name="arrow.up.circle.fill" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
         
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messageList}
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-          style={{ paddingBottom: 80 }} // Add padding to avoid overlap with input
-        />
-        
-        {isLoading && (
-          <View style={[styles.loadingContainer, { backgroundColor: theme.card }]}>
-            <ActivityIndicator size="small" color={theme.primary} />
-            <ThemedText style={styles.loadingText}>AI is typing...</ThemedText>
-          </View>
-        )}
-        
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={100}
-          style={styles.inputContainer}
-        >
-          <View style={[styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <TextInput
-              style={[styles.input, { color: theme.text }]}
-              placeholder="Type your message here..."
-              placeholderTextColor={theme.text ? `${theme.text}80` : '#99999980'}
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-              maxLength={500}
-            />
-            <TouchableOpacity 
-              style={[styles.sendButton, { backgroundColor: theme.primary }]}
-              onPress={sendMessage}
-              disabled={inputText.trim() === '' || isLoading}
-            >
-              <IconSymbol name="arrow.up.circle.fill" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-          
-          <ThemedText style={styles.disclaimer}>
-            This AI assistant provides general information only and is not a substitute for professional medical advice.
-          </ThemedText>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+        <ThemedText style={styles.disclaimer}>
+          This AI assistant provides general information only and is not a substitute for professional medical advice.
+        </ThemedText>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
