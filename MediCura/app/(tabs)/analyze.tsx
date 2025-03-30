@@ -7,7 +7,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import Colors, { Colors as ColorsPalette } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import axios from 'axios';
-import { OPENAI_API_KEY } from '@env';
+import { OPENAI_API_KEY, OCR_API_KEY } from '@env';
 
 type DocumentAsset = {
   name: string;
@@ -68,7 +68,7 @@ export default function AnalyzeScreen() {
   
       const formData = new FormData();
       formData.append('base64image', formattedBase64);
-      formData.append('apikey', 'K87588236988957');
+      formData.append('apikey', `${OCR_API_KEY}`);
       formData.append('language', 'eng');
       formData.append('filetype', document.mimeType?.includes('pdf') ? 'pdf' : 'image');
   
