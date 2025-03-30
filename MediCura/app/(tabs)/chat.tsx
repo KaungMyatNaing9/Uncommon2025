@@ -32,7 +32,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello, this is Dr. Careo and I am here to help you with your health concerns.",
+      text: "Hello, this is Dr. House and I am here to help you with your health concerns.",
       sender: 'ai',
       timestamp: new Date(),
     },

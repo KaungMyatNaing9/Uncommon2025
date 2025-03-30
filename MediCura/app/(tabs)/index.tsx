@@ -84,7 +84,7 @@ export default function HomeScreen() {
         <ThemedView style={styles.featureContainer}>
           <ThemedView style={styles.featureHeaderContainer}>
             <IconSymbol size={28} name="message.fill" color="#6ECAFF" />
-            <Text style={styles.pixelFeatureTitle}>Chat with Dr. Careo</Text>
+            <Text style={styles.pixelFeatureTitle}>Chat with Dr. House</Text>
           </ThemedView>
           <Text style={styles.pixelText}>
             Have health questions? Chat with our AI doctor for personalized guidance and information. Get compassionate, easy-to-understand answers to your medical concerns.
