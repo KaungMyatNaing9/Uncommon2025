@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
@@ -8,6 +8,7 @@ import Colors, { Colors as ColorsPalette } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import axios from 'axios';
 import { OPENAI_API_KEY, OCR_API_KEY } from '@env';
+import PixelBackground from '../../assets/images/project/pixelBackground.png';
 
 type DocumentAsset = {
   name: string;
@@ -190,137 +191,139 @@ export default function AnalyzeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>Medical Analysis</Text>
-        <Text style={[styles.subtitle, { color: theme.text }]}>
-          Upload your medical test results or physician notes for easy-to-understand analysis
-        </Text>
-      </View>
-      
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity 
-          style={[styles.uploadBox, { borderColor: theme.border }]} 
-          onPress={pickDocument}
-        >
-          <IconSymbol size={40} name="flask.fill" color={theme.primary} />
-          <Text style={[styles.uploadText, { color: theme.text }]}>
-            {document ? 'Change Document' : 'Upload Document'}
+    <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
+      <SafeAreaView style={[styles.container]}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.text }]}>Medical Analysis</Text>
+          <Text style={[styles.subtitle, { color: theme.text }]}>
+            Upload your medical test results or physician notes for easy-to-understand analysis
           </Text>
-          {document && (
-            <Text style={[styles.documentName, { color: theme.text }]} numberOfLines={1}>
-              {document.name}
-            </Text>
-          )}
-        </TouchableOpacity>
+        </View>
         
-        {document && !result && !loading && !error && (
+        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <TouchableOpacity 
-            style={[styles.analyzeButton, { backgroundColor: theme.primary }]}
-            onPress={analyzeDocument}
+            style={[styles.uploadBox, { borderColor: theme.border }]} 
+            onPress={pickDocument}
           >
-            <Text style={[styles.buttonText, { color: theme.buttonText }]}>Analyze Document</Text>
+            <IconSymbol size={40} name="flask.fill" color={theme.primary} />
+            <Text style={[styles.uploadText, { color: theme.text }]}>
+              {document ? 'Change Document' : 'Upload Document'}
+            </Text>
+            {document && (
+              <Text style={[styles.documentName, { color: theme.text }]} numberOfLines={1}>
+                {document.name}
+              </Text>
+            )}
           </TouchableOpacity>
-        )}
-        
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.primary} />
-            <Text style={[styles.loadingText, { color: theme.text }]}>
-              Analyzing your document...
-            </Text>
-          </View>
-        )}
-        
-        {error && (
-          <View style={[styles.errorContainer, { borderColor: ColorsPalette.danger }]}>
-            <Text style={[styles.errorText, { color: ColorsPalette.danger }]}>{error}</Text>
+          
+          {document && !result && !loading && !error && (
             <TouchableOpacity 
-              style={[styles.retryButton, { backgroundColor: ColorsPalette.danger }]}
-              onPress={pickDocument}
+              style={[styles.analyzeButton, { backgroundColor: theme.primary }]}
+              onPress={analyzeDocument}
             >
-              <Text style={[styles.buttonText, { color: ColorsPalette.white }]}>Try Again</Text>
+              <Text style={[styles.buttonText, { color: theme.buttonText }]}>Analyze Document</Text>
             </TouchableOpacity>
-          </View>
-        )}
-        
-        {result && (
-          <View style={styles.resultsContainer}>
-            {/* Analysis Section */}
-            <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <Text style={[styles.sectionTitle, { color: theme.primary }]}>Your Results Explained:</Text>
-              <Text style={[styles.sectionContent, { color: theme.text }]}>{result.analysis}</Text>
+          )}
+          
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={theme.primary} />
+              <Text style={[styles.loadingText, { color: theme.text }]}>
+                Analyzing your document...
+              </Text>
             </View>
-            
-            {/* Medical Terminology Section */}
-            {Object.keys(result.terminology).length > 0 && (
+          )}
+          
+          {error && (
+            <View style={[styles.errorContainer, { borderColor: ColorsPalette.danger }]}>
+              <Text style={[styles.errorText, { color: ColorsPalette.danger }]}>{error}</Text>
+              <TouchableOpacity 
+                style={[styles.retryButton, { backgroundColor: ColorsPalette.danger }]}
+                onPress={pickDocument}
+              >
+                <Text style={[styles.buttonText, { color: ColorsPalette.white }]}>Try Again</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          {result && (
+            <View style={styles.resultsContainer}>
+              {/* Analysis Section */}
               <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>Medical Terms Explained:</Text>
-                {Object.entries(result.terminology).map(([term, explanation], index) => (
-                  <View key={index} style={styles.termContainer}>
-                    <Text style={[styles.termText, { color: theme.primary }]}>{term}:</Text>
-                    <Text style={[styles.explanationText, { color: theme.text }]}>{explanation}</Text>
-                  </View>
-                ))}
+                <Text style={[styles.sectionTitle, { color: theme.primary }]}>Your Results Explained:</Text>
+                <Text style={[styles.sectionContent, { color: theme.text }]}>{result.analysis}</Text>
               </View>
-            )}
-            
-            {/* Disease Predictions Section */}
-            {result.predictions.length > 0 && (
-              <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>Potential Health Considerations:</Text>
-                <Text style={[styles.disclaimerSmall, { color: ColorsPalette.muted }]}>
-                  These are possibilities based on your results, not definitive diagnoses.
-                </Text>
-                
-                {result.predictions.map((prediction, index) => (
-                  <View key={index} style={styles.predictionContainer}>
-                    <View style={styles.predictionHeader}>
-                      <Text style={[styles.diseaseName, { color: theme.text }]}>{prediction.disease}</Text>
-                      <View 
-                        style={[
-                          styles.probabilityBadge,
-                          { 
-                            backgroundColor: prediction.probability > 0.7 
-                              ? ColorsPalette.danger 
-                              : prediction.probability > 0.4 
-                                ? ColorsPalette.warning 
-                                : ColorsPalette.success
-                          }
-                        ]}
-                      >
-                        <Text style={styles.probabilityText}>{formatProbability(prediction.probability)}</Text>
-                      </View>
+              
+              {/* Medical Terminology Section */}
+              {Object.keys(result.terminology).length > 0 && (
+                <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                  <Text style={[styles.sectionTitle, { color: theme.primary }]}>Medical Terms Explained:</Text>
+                  {Object.entries(result.terminology).map(([term, explanation], index) => (
+                    <View key={index} style={styles.termContainer}>
+                      <Text style={[styles.termText, { color: theme.primary }]}>{term}:</Text>
+                      <Text style={[styles.explanationText, { color: theme.text }]}>{explanation}</Text>
                     </View>
-                    
-                    <Text style={[styles.preventionText, { color: theme.text }]}>
-                      {prediction.prevention}
-                    </Text>
-                    
-                    {prediction.specialistType && (
-                      <Text style={[styles.specialistText, { color: theme.primary }]}>
-                        Consider consulting: {prediction.specialistType}
+                  ))}
+                </View>
+              )}
+              
+              {/* Disease Predictions Section */}
+              {result.predictions.length > 0 && (
+                <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                  <Text style={[styles.sectionTitle, { color: theme.primary }]}>Potential Health Considerations:</Text>
+                  <Text style={[styles.disclaimerSmall, { color: ColorsPalette.muted }]}>
+                    These are possibilities based on your results, not definitive diagnoses.
+                  </Text>
+                  
+                  {result.predictions.map((prediction, index) => (
+                    <View key={index} style={styles.predictionContainer}>
+                      <View style={styles.predictionHeader}>
+                        <Text style={[styles.diseaseName, { color: theme.text }]}>{prediction.disease}</Text>
+                        <View 
+                          style={[
+                            styles.probabilityBadge,
+                            { 
+                              backgroundColor: prediction.probability > 0.7 
+                                ? ColorsPalette.danger 
+                                : prediction.probability > 0.4 
+                                  ? ColorsPalette.warning 
+                                  : ColorsPalette.success
+                            }
+                          ]}
+                        >
+                          <Text style={styles.probabilityText}>{formatProbability(prediction.probability)}</Text>
+                        </View>
+                      </View>
+                      
+                      <Text style={[styles.preventionText, { color: theme.text }]}>
+                        {prediction.prevention}
                       </Text>
-                    )}
-                  </View>
-                ))}
-              </View>
-            )}
-            
-            <Text style={[styles.disclaimer, { color: ColorsPalette.muted }]}>
-              Important: This analysis is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider.
-            </Text>
-            
-            <TouchableOpacity 
-              style={[styles.newAnalysisButton, { backgroundColor: theme.secondary }]}
-              onPress={pickDocument}
-            >
-              <Text style={[styles.buttonText, { color: theme.buttonText }]}>Upload New Document</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+                      
+                      {prediction.specialistType && (
+                        <Text style={[styles.specialistText, { color: theme.primary }]}>
+                          Consider consulting: {prediction.specialistType}
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
+              
+              <Text style={[styles.disclaimer, { color: ColorsPalette.muted }]}>
+                Important: This analysis is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider.
+              </Text>
+              
+              <TouchableOpacity 
+                style={[styles.newAnalysisButton, { backgroundColor: theme.secondary }]}
+                onPress={pickDocument}
+              >
+                <Text style={[styles.buttonText, { color: theme.buttonText }]}>Upload New Document</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
@@ -484,5 +487,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
   },
 }); 

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, ImageBackground } from 'react-native';
 import { router } from 'expo-router';
 
 import { HelloWave } from '@/components/HelloWave';
@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Colors, { Colors as ColorsPalette } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import PixelBackground from '../../assets/images/project/pixelBackground.png';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   };
 
   return (
+    <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
     <ParallaxScrollView
       headerBackgroundColor={{ light: ColorsPalette.primary, dark: '#1D3D47' }}
       headerImage={
@@ -79,6 +81,7 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
+    </ImageBackground>
   );
 }
 
@@ -125,5 +128,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover', 
+    justifyContent: 'center',
   },
 });
