@@ -9,6 +9,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import axios from 'axios';
 import { OPENAI_API_KEY, OCR_API_KEY } from '@env';
 import PixelBackground from '../../assets/images/project/pixelBackground.png';
+import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
 
 type DocumentAsset = {
   name: string;
@@ -32,10 +33,24 @@ export default function AnalyzeScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
   
+  // Load the pixel font
+  const [fontsLoaded] = useFonts({
+    PressStart2P_400Regular,
+  });
+  
   const [document, setDocument] = useState<DocumentAsset | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Display a loading screen while fonts are loading
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const pickDocument = async () => {
     try {
@@ -194,8 +209,8 @@ export default function AnalyzeScreen() {
     <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
       <SafeAreaView style={[styles.container]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.milk }]}>Medical Analysis</Text>
-          <Text style={[styles.subtitle, { color: theme.milk }]}>
+          <Text style={styles.pixelTitle}>Medical Analysis</Text>
+          <Text style={styles.pixelSubtitle}>
             Upload your medical test results or physician notes for easy-to-understand analysis
           </Text>
         </View>
@@ -206,7 +221,7 @@ export default function AnalyzeScreen() {
             onPress={pickDocument}
           >
             <IconSymbol size={40} name="flask.fill" color={theme.primary} />
-            <Text style={[styles.uploadText, { color: theme.milk }]}>
+            <Text style={styles.pixelUploadText}>
               {document ? 'Change Document' : 'Upload Document'}
             </Text>
             {document && (
@@ -221,7 +236,7 @@ export default function AnalyzeScreen() {
               style={[styles.analyzeButton, { backgroundColor: theme.primary }]}
               onPress={analyzeDocument}
             >
-              <Text style={[styles.buttonText, { color: theme.buttonText }]}>Analyze Document</Text>
+              <Text style={styles.pixelButtonText}>Analyze Document</Text>
             </TouchableOpacity>
           )}
           
@@ -241,7 +256,7 @@ export default function AnalyzeScreen() {
                 style={[styles.retryButton, { backgroundColor: ColorsPalette.danger }]}
                 onPress={pickDocument}
               >
-                <Text style={[styles.buttonText, { color: ColorsPalette.white }]}>Try Again</Text>
+                <Text style={styles.pixelButtonText}>Try Again</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -250,14 +265,14 @@ export default function AnalyzeScreen() {
             <View style={styles.resultsContainer}>
               {/* Analysis Section */}
               <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>Your Results Explained:</Text>
+                <Text style={styles.pixelSectionTitle}>Your Results Explained:</Text>
                 <Text style={[styles.sectionContent, { color: theme.text }]}>{result.analysis}</Text>
               </View>
               
               {/* Medical Terminology Section */}
               {Object.keys(result.terminology).length > 0 && (
                 <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                  <Text style={[styles.sectionTitle, { color: theme.primary }]}>Medical Terms Explained:</Text>
+                  <Text style={styles.pixelSectionTitle}>Medical Terms Explained:</Text>
                   {Object.entries(result.terminology).map(([term, explanation], index) => (
                     <View key={index} style={styles.termContainer}>
                       <Text style={[styles.termText, { color: theme.primary }]}>{term}:</Text>
@@ -270,7 +285,7 @@ export default function AnalyzeScreen() {
               {/* Disease Predictions Section */}
               {result.predictions.length > 0 && (
                 <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                  <Text style={[styles.sectionTitle, { color: theme.primary }]}>Potential Health Considerations:</Text>
+                  <Text style={styles.pixelSectionTitle}>Potential Health Considerations:</Text>
                   <Text style={[styles.disclaimerSmall, { color: ColorsPalette.muted }]}>
                     These are possibilities based on your results, not definitive diagnoses.
                   </Text>
@@ -309,15 +324,15 @@ export default function AnalyzeScreen() {
                 </View>
               )}
               
-              <Text style={[styles.disclaimer, { color: ColorsPalette.muted }]}>
-                Important: This analysis is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider.
+              <Text style={styles.pixelDisclaimer}>
+                Important: This analysis is for informational purposes only.
               </Text>
               
               <TouchableOpacity 
                 style={[styles.newAnalysisButton, { backgroundColor: theme.secondary }]}
                 onPress={pickDocument}
               >
-                <Text style={[styles.buttonText, { color: theme.buttonText }]}>Upload New Document</Text>
+                <Text style={styles.pixelButtonText}>Upload New Document</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -328,6 +343,56 @@ export default function AnalyzeScreen() {
 }
 
 const styles = StyleSheet.create({
+  pixelTitle: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 18,
+    lineHeight: 24,
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  pixelSubtitle: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 10,
+    lineHeight: 16, 
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+  },
+  pixelUploadText: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 12,
+    marginTop: 12,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+  },
+  pixelButtonText: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 12,
+  },
+  pixelSectionTitle: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: '#4C8BFF',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  pixelDisclaimer: {
+    fontFamily: 'PressStart2P_400Regular',
+    fontSize: 8,
+    lineHeight: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 20,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+  },
   container: {
     flex: 1,
   },
@@ -360,11 +425,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
   },
-  uploadText: {
-    marginTop: 12,
-    fontSize: 16,
-    fontWeight: '500',
-  },
   documentName: {
     marginTop: 8,
     fontSize: 14,
@@ -374,10 +434,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   loadingContainer: {
     padding: 20,
@@ -413,15 +469,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  sectionContent: {
-    fontSize: 16,
-    lineHeight: 24,
   },
   termContainer: {
     marginBottom: 12,
@@ -476,12 +523,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 10,
   },
-  disclaimer: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
   newAnalysisButton: {
     padding: 16,
     borderRadius: 8,
@@ -492,5 +533,9 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
     justifyContent: 'center',
+  },
+  sectionContent: {
+    fontSize: 16,
+    lineHeight: 24,
   },
 }); 

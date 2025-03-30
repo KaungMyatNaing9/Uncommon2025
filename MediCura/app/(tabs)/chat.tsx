@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image, ImageBackground } from 'react-native';
+import { StyleSheet, View, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image, ImageBackground, Text } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 import axios from 'axios';
 import { OPENAI_API_KEY } from '@env';
 import PixelBackground from '../../assets/images/project/pixelBackground.png';
+import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
 
 // Message types for the chat
 interface Message {
@@ -22,11 +23,16 @@ export default function ChatScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
   
+  // Load the pixel font
+  const [fontsLoaded] = useFonts({
+    PressStart2P_400Regular,
+  });
+  
   // State for messages and input
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello, this is Dr. House and I am here to help you with your health concerns.",
+      text: "Hello, this is Dr. Careo and I am here to help you with your health concerns.",
       sender: 'ai',
       timestamp: new Date(),
     },
@@ -36,6 +42,15 @@ export default function ChatScreen() {
   
   // Reference to the FlatList to automatically scroll to bottom
   const flatListRef = useRef<FlatList>(null);
+
+  // Display a loading screen while fonts are loading
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   // Function to call OpenAI API
   const analyzeWithOpenAI = async (userInput: string, messageHistory: Message[]): Promise<string> => {
@@ -205,10 +220,10 @@ export default function ChatScreen() {
     <ImageBackground source={PixelBackground} style={styles.backgroundImage}>
       <SafeAreaView style={[styles.container]} edges={['top']}>
         <View style={styles.header}>
-          <ThemedText style={[styles.title, { color: theme.milk}]}>Health Assistant</ThemedText>
-          <ThemedText style={[styles.subtitle, { color: theme.milk}]}>
+          <Text style={styles.pixelTitle}>Health Assistant</Text>
+          <Text style={styles.pixelSubtitle}>
             Chat with the AI about your health questions
-          </ThemedText>
+          </Text>
         </View>
         
         <FlatList
@@ -252,8 +267,9 @@ export default function ChatScreen() {
             </TouchableOpacity>
           </View>
           
-          <ThemedText style={styles.disclaimer}>
-          </ThemedText>
+          <Text style={styles.pixelDisclaimer}>
+            This AI assistant provides general information only.
+          </Text>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>
@@ -261,6 +277,37 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
+  pixelTitle: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 18,
+    lineHeight: 24,
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  pixelSubtitle: {
+    fontFamily: 'PressStart2P_400Regular',
+    color: 'white',
+    fontSize: 10,
+    lineHeight: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+  },
+  pixelDisclaimer: {
+    fontFamily: 'PressStart2P_400Regular',
+    fontSize: 8,
+    lineHeight: 14,
+    color: 'white',
+    opacity: 0.8,
+    marginTop: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+  },
   container: {
     flex: 1,
   },
@@ -363,13 +410,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
-  },
-  disclaimer: {
-    fontSize: 12,
-    fontStyle: 'italic',
-    opacity: 0.7,
-    marginTop: 8,
-    textAlign: 'center',
   },
   backgroundImage: {
     flex: 1,
